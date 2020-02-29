@@ -17,7 +17,7 @@ using namespace std;
 //ifstream cin("bacon.in");
 //ofstream cout("bacon.out");
 
-ll inf, inf2, inf3, inf4, k, k2, k3, k4;
+ll inf[4], k[4], id = 0;
 
 int gcd(int a, int b) {
 	while (b) {
@@ -27,116 +27,50 @@ int gcd(int a, int b) {
 	return a;
 }
 
-void gen() {
+void gen(int num) {
 	srand(time(0));
 	for (int i = (int)1e9 + rand() % 32000; true; i++) {
-		k = 300 + rand() % 1000;
-		if (gcd(i, k) == 1) {
-			inf = i;
+		int t = num + rand() % 1000;
+		if (gcd(i, t) == 1) {
+			inf[id] = i;
+			k[id] = t;
+			id++;
 			break;
 		}
 	}
 }
-
-void gen2() {
-	srand(time(0));
-	for (int i = (int)1e9 + rand() % 32000; true; i++) {
-		k2 = 305 + rand() % 1000;
-		if (gcd(i, k2) == 1) {
-			inf2 = i;
-			break;
-		}
-	}
-}
-
-void gen3() {
-	srand(time(0));
-	for (int i = (int)1e9 + rand() % 32000; true; i++) {
-		k3 = 307 + rand() % 1000;
-		if (gcd(i, k3) == 1) {
-			inf3 = i;
-			break;
-		}
-	}
-}
-
-void gen4() {
-	srand(time(0));
-	for (int i = (int)1e9 + rand() % 32000; true; i++) {
-		k4 = 309 + rand() % 1000;
-		if (gcd(i, k4) == 1) {
-			inf4 = i;
-			break;
-		}
-	}
-}
-
 
 int main()
 {
-	gen();
-	gen2();
-	gen3();
-	gen4();
+	vector<int> nums(4); 
+	nums = { 300, 305, 307, 309 };
+	for (int i = 0; i < nums.size(); i++) {
+		gen(nums[i]);
+	}
 	ll sm = 0;
 	string s;
 	cin >> s;
-	vector<ll> pw(s.size() + 1), h(s.size() + 1);
-	pw[0] = 1;
-	for (int i = 1; i <= s.size(); i++) {
-		pw[i] = pw[i - 1] * k;
-		pw[i] %= inf;
+	vector<vector<ll>> pw(4, vector<ll>(s.size() + 1)), h(4, vector <ll> (s.size() + 1));
+	for (int num = 0; num < 4; num++) {
+		pw[num][0] = 1;
+		for (int i = 1; i <= s.size(); i++) {
+			pw[num][i] = pw[num][i - 1] * k[num];
+			pw[num][i] %= inf[num];
+		}
+		h[num][0] = 0;
+		for (int i = 0; i < s.size(); i++) {
+			h[num][i + 1] = h[num][i] * k[num] + s[i];
+			h[num][i + 1] %= inf[num];
+		}
 	}
-	h[0] = 0;
-	for (int i = 0; i < s.size(); i++) {
-		h[i + 1] = h[i] * k + s[i];
-		h[i + 1] %= inf;
-	}
-
-	vector<ll> pw2(s.size() + 1), h2(s.size() + 1);
-	pw2[0] = 1;
-	for (int i = 1; i <= s.size(); i++) {
-		pw2[i] = pw2[i - 1] * k2;
-		pw2[i] %= inf2;
-	}
-	h2[0] = 0;
-	for (int i = 0; i < s.size(); i++) {
-		h2[i + 1] = h2[i] * k2 + s[i];
-		h2[i + 1] %= inf2;
-	}
-
-	vector<ll> pw3(s.size() + 1), h3(s.size() + 1);
-	pw3[0] = 1;
-	for (int i = 1; i <= s.size(); i++) {
-		pw3[i] = pw3[i - 1] * k3;
-		pw3[i] %= inf3;
-	}
-	h3[0] = 0;
-	for (int i = 0; i < s.size(); i++) {
-		h3[i + 1] = h3[i] * k3 + s[i];
-		h3[i + 1] %= inf3;
-	}
-
-	vector<ll> pw4(s.size() + 1), h4(s.size() + 1);
-	pw4[0] = 1;
-	for (int i = 1; i <= s.size(); i++) {
-		pw4[i] = pw4[i - 1] * k4;
-		pw4[i] %= inf4;
-	}
-	h4[0] = 0;
-	for (int i = 0; i < s.size(); i++) {
-		h4[i + 1] = h4[i] * k4 + s[i];
-		h4[i + 1] %= inf4;
-	}
-
-
+	
 	for (int len = 1; len <= s.size(); len++) {
 		set<pair<pair<int, int>, pair<int, int> > > st;
 		for (int i = 0; i + len <= s.size(); i++) {
-			ll t4 = (h4[i + len] - h4[i] * pw4[len] + inf4 * inf4) % inf4;
-			ll t3 = (h3[i + len] - h3[i] * pw3[len] + inf3 * inf3) % inf3;
-			ll t2 = (h2[i + len] - h2[i] * pw2[len] + inf2 * inf2) % inf2;
-			ll t = (h[i + len] - h[i] * pw[len] + inf * inf) % inf;
+			ll t4 = (h[3][i + len] - h[3][i] * pw[3][len] + inf[3] * inf[3]) % inf[3];
+			ll t3 = (h[2][i + len] - h[2][i] * pw[2][len] + inf[2] * inf[2]) % inf[2];
+			ll t2 = (h[1][i + len] - h[1][i] * pw[1][len] + inf[1] * inf[1]) % inf[1];
+			ll t = (h[0][i + len] - h[0][i] * pw[0][len] + inf[0] * inf[0]) % inf[0];
 			st.insert({ { t, t2 },{ t3, t4 } });
 		}
 		sm += st.size();
